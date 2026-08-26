@@ -1,440 +1,507 @@
-<!DOCTYPE html>
-
-<html class="light" lang="th"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>การพัฒนาคลังสินค้าด้วยกล่องบรรจุภัณฑ์รหัสสีและ QR Code</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Noto+Sans+Thai:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface-dim": "#dad9e3",
-                        "surface-bright": "#fbf8ff",
-                        "inverse-on-surface": "#f1f0fa",
-                        "tertiary": "#611e00",
-                        "on-surface-variant": "#444653",
-                        "surface-container-low": "#f4f2fc",
-                        "primary-fixed-dim": "#b8c4ff",
-                        "on-secondary-container": "#54647a",
-                        "on-primary-fixed": "#001453",
-                        "on-tertiary-fixed": "#380d00",
-                        "on-tertiary-fixed-variant": "#802a00",
-                        "primary-fixed": "#dde1ff",
-                        "surface-container-highest": "#e3e1eb",
-                        "on-secondary": "#ffffff",
-                        "secondary-container": "#d0e1fb",
-                        "on-error-container": "#93000a",
-                        "on-background": "#1a1b22",
-                        "on-primary-fixed-variant": "#173bab",
-                        "surface-container-lowest": "#ffffff",
-                        "on-secondary-fixed-variant": "#38485d",
-                        "inverse-primary": "#b8c4ff",
-                        "background": "#fbf8ff",
-                        "secondary-fixed-dim": "#b7c8e1",
-                        "error": "#ba1a1a",
-                        "inverse-surface": "#2f3037",
-                        "tertiary-container": "#872d00",
-                        "surface-variant": "#e3e1eb",
-                        "on-error": "#ffffff",
-                        "primary": "#00288e",
-                        "surface-tint": "#3755c3",
-                        "outline-variant": "#c4c5d5",
-                        "on-tertiary-container": "#ffa583",
-                        "on-tertiary": "#ffffff",
-                        "tertiary-fixed": "#ffdbce",
-                        "on-surface": "#1a1b22",
-                        "on-secondary-fixed": "#0b1c30",
-                        "on-primary-container": "#a8b8ff",
-                        "on-primary": "#ffffff",
-                        "surface-container": "#eeedf7",
-                        "surface-container-high": "#e8e7f1",
-                        "secondary-fixed": "#d3e4fe",
-                        "tertiary-fixed-dim": "#ffb59a",
-                        "outline": "#757684",
-                        "secondary": "#505f76",
-                        "surface": "#fbf8ff",
-                        "primary-container": "#1e40af",
-                        "error-container": "#ffdad6"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "xs": "4px",
-                        "xl": "32px",
-                        "base": "4px",
-                        "gutter": "20px",
-                        "sm": "8px",
-                        "lg": "24px",
-                        "container-max": "1440px",
-                        "md": "16px"
-                    },
-                    "fontFamily": {
-                        "title-md": ["Inter", "Noto Sans Thai"],
-                        "body-md": ["Inter", "Noto Sans Thai"],
-                        "body-lg": ["Inter", "Noto Sans Thai"],
-                        "headline-lg-mobile": ["Inter", "Noto Sans Thai"],
-                        "display": ["Inter", "Noto Sans Thai"],
-                        "headline-lg": ["Inter", "Noto Sans Thai"],
-                        "label-sm": ["Inter", "Noto Sans Thai"]
-                    },
-                    "fontSize": {
-                        "title-md": ["18px", {"lineHeight": "28px", "fontWeight": "600"}],
-                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                        "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}]
-                    }
-                },
+<!-- JavaScript ระบบการทำงาน (โค้ดฉบับสมบูรณ์) -->
+    <script>
+        const defaultDatabase = {
+            "LF1001": { 
+                status: 1, 
+                name: "เสื้อยืดคอกลม", 
+                code: "TEST001", 
+                category: "เสื้อผ้า", 
+                location: "A1", 
+                qty: "10", 
+                unit: "ตัว", 
+                timestamp: 1748740000000,
+                created: "01/06/2026 10:00", 
+                updated: "01/06/2026 10:00" 
             },
-        }
-    </script>
-<style>
-        body { font-family: 'Inter', 'Noto Sans Thai', sans-serif; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .view-transition { transition: opacity 300ms ease-in-out, transform 300ms ease-in-out; }
-        .hidden-view { opacity: 0; transform: translateY(10px); pointer-events: none; position: absolute; width: 100%; }
-        .active-view { opacity: 1; transform: translateY(0); pointer-events: auto; position: relative; }
-        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); }
-    </style>
-<style>
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
+            "LF1002": { 
+                status: 2, 
+                name: "กางเกงยีนส์ขาสั้น", 
+                code: "TEST002", 
+                category: "กางเกง", 
+                location: "A2", 
+                qty: "5", 
+                unit: "ชิ้น", 
+                timestamp: 1748743600000,
+                created: "02/06/2026 11:30", 
+                updated: "02/06/2026 12:15" 
             }
-            .no-scrollbar::-webkit-scrollbar { display: none; }
-            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            .nav-item.active { color: var(--primary) !important; }
-        </style></head>
-<body class="bg-surface text-on-surface min-h-screen pb-20">
-<!-- TopAppBar -->
-<header class="sticky top-0 z-50 flex justify-between items-center px-lg py-sm w-full bg-surface/95 backdrop-blur-sm border-b border-outline-variant shadow-sm">
-<div class="flex items-center gap-md">
-<img alt="LogisticsFlow Logo" class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn3sAAcuR3D02MfwM6qp2qoKZSMOejzqP5IVjDaH2wk8UVXqw9W4hh0a26DxrIxmYrBL5UKOax95tdR0iGwRV8ZC0HYCLV_uFlvLIQhGkXCTgNerNJYNH2j3ju_wfq7UJYWDzWrblszeixb71a35iirEgjU6mCO0vPkvl6Ivsmfe76ALOsmeEZQJCauGlEdoXeBl2MVJMDf4JgxZ71PudRk_c_WSJmGs_ibFcqxkHhCTfJpMAB5MtRMWk0pQzeUaKl68Rz6SL2YMc"/>
-<h1 class="font-display text-display text-primary tracking-tight text-[24px] md:text-[28px]">LogisticsFlow</h1>
-</div>
-<div class="flex items-center gap-md">
-<button class="material-symbols-outlined text-primary p-xs rounded-full hover:bg-surface-container-low transition-colors duration-200">account_circle</button>
-</div>
-</header>
-<main class="max-w-container-max mx-auto px-md md:px-lg py-lg relative overflow-x-hidden">
-<!-- HOME VIEW -->
-<section class="view-transition active-view space-y-xl" id="view-home">
-<div class="text-center md:text-left space-y-md">
-<h2 class="font-headline-lg text-headline-lg text-on-surface leading-tight">
-                    การพัฒนาคลังสินค้าด้วยกล่องบรรจุภัณฑ์รหัสสีและ QR Code
-                </h2>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-                    ระบบบริหารจัดการคลังสินค้าอัจฉริยะที่ใช้เทคโนโลยีการระบุตัวตนด้วยรหัสสีและคิวอาร์โค้ด 
-                    เพื่อเพิ่มประสิทธิภาพในการจัดเก็บ ค้นหา และตรวจสอบสถานะสินค้าแบบเรียลไทม์
-                </p>
-<div class="pt-md">
-<button class="bg-primary text-on-primary px-xl py-md rounded-xl font-title-md text-title-md shadow-md active:scale-95 transition-all duration-200 flex items-center gap-sm mx-auto md:mx-0" onclick="switchView('view-list')">
-<span class="material-symbols-outlined">qr_code_scanner</span>
-                        เริ่มสแกนและตรวจสอบสินค้า
-                    </button>
-</div>
-</div>
-<!-- Stats Board (Bento Style) -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
-<div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between h-40">
-<div class="flex justify-between items-start">
-<span class="material-symbols-outlined text-primary text-[32px]">inventory_2</span>
-<span class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant">Total Items</span>
-</div>
-<div>
-<div class="font-display text-display text-on-surface">20</div>
-<div class="text-body-md font-body-md text-on-surface-variant">รายการทั้งหมดในระบบ</div>
-</div>
-</div>
-<div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between h-40">
-<div class="flex justify-between items-start">
-<span class="material-symbols-outlined text-primary text-[32px]">warehouse</span>
-<span class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant">Storage Slots</span>
-</div>
-<div>
-<div class="font-display text-display text-on-surface">100</div>
-<div class="text-body-md font-body-md text-on-surface-variant">ช่องจัดเก็บว่าง 80/100</div>
-</div>
-</div>
-<div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between h-40">
-<div class="flex justify-between items-start">
-<span class="material-symbols-outlined text-primary text-[32px]">local_shipping</span>
-<span class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant">Ready to Ship</span>
-</div>
-<div>
-<div class="font-display text-display text-primary" id="readyCount">20</div>
-<div class="text-body-md font-body-md text-on-surface-variant">สินค้าพร้อมจัดส่งวันนี้</div>
-</div>
-</div>
-</div>
-</section>
-<!-- PRODUCT LIST VIEW -->
-<section class="view-transition hidden-view space-y-md" id="view-list">
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
-<div class="relative flex-1">
-<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-<input class="w-full pl-[48px] pr-md py-sm bg-white border border-outline-variant rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" id="searchInput" oninput="filterProducts()" placeholder="ค้นหาด้วยรหัสสินค้า หรือ ชื่อสินค้า..." type="text"/>
-</div>
-<div class="flex items-center gap-xs overflow-x-auto pb-xs no-scrollbar"><button class="status-tab active-tab px-md py-xs rounded-full bg-primary text-on-primary text-label-sm font-label-sm whitespace-nowrap transition-colors" onclick="filterByStatus('all')">ทั้งหมด</button><button class="status-tab px-md py-xs rounded-full bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-variant transition-colors" onclick="filterByStatus('รอรับเข้า')">รอรับเข้า</button><button class="status-tab px-md py-xs rounded-full bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-variant transition-colors" onclick="filterByStatus('จัดเก็บแล้ว')">จัดเก็บแล้ว</button><button class="status-tab px-md py-xs rounded-full bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-variant transition-colors" onclick="filterByStatus('พร้อมจัดส่ง')">พร้อมจัดส่ง</button><button class="status-tab px-md py-xs rounded-full bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-variant transition-colors" onclick="filterByStatus('ต้องตรวจสอบ')">ต้องตรวจสอบ</button></div>
-</div>
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-md" id="productGrid"></div>
-</section>
-<!-- DETAIL VIEW -->
-<section class="view-transition hidden-view max-w-4xl mx-auto" id="view-detail">
-<div class="bg-white rounded-xl border border-outline-variant shadow-lg overflow-hidden">
-<div class="p-md md:p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-low">
-<button class="flex items-center gap-xs text-primary font-title-md text-title-md hover:underline" onclick="switchView('view-list')">
-<span class="material-symbols-outlined">arrow_back</span> ย้อนกลับ
-                    </button>
-<span class="px-md py-xs rounded-full text-label-sm font-label-sm" id="detailStatusBadge"></span>
-</div>
-<div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-xl">
-<div class="space-y-lg">
-<div>
-<span class="text-label-sm font-label-sm text-outline uppercase tracking-wider">Product Information</span>
-<h3 class="font-headline-lg text-headline-lg text-on-surface mt-xs" id="detailName">ชื่อสินค้า</h3>
-<p class="font-body-md text-body-md text-on-surface-variant" id="detailId">A000</p>
-</div>
-<div class="grid grid-cols-2 gap-md pt-md border-t border-outline-variant">
-<div>
-<p class="text-label-sm font-label-sm text-outline uppercase">หมวดหมู่</p>
-<p class="font-body-lg text-body-lg font-semibold" id="detailCategory">เครื่องเขียน</p>
-</div>
-<div>
-<p class="text-label-sm font-label-sm text-outline uppercase">ตำแหน่งจัดเก็บ</p>
-<p class="font-body-lg text-body-lg font-semibold" id="detailLocation">A01</p>
-</div>
-<div>
-<p class="text-label-sm font-label-sm text-outline uppercase">จำนวน</p>
-<p class="font-body-lg text-body-lg font-semibold" id="detailQty">0</p>
-</div>
-<div>
-<p class="text-label-sm font-label-sm text-outline uppercase">หน่วย</p>
-<p class="font-body-lg text-body-lg font-semibold" id="detailUnit">ชิ้น</p>
-</div>
-</div>
-<div class="space-y-sm">
-<div>
-<p class="text-label-sm font-label-sm text-outline uppercase">วันที่ลงทะเบียน</p>
-<p class="font-body-md text-body-md" id="detailMfg">01/05/2024</p>
-</div>
-</div>
-</div>
-<div class="flex flex-col items-center justify-center p-lg bg-surface-container rounded-xl border border-outline-variant/50">
-<p class="text-label-sm font-label-sm text-on-surface-variant mb-md text-center">คิวอาร์โค้ดประจำสินค้า (Scan for Actions)</p>
-<div class="bg-white p-md rounded-lg shadow-sm border border-outline-variant mb-md">
-<span class="material-symbols-outlined text-[140px] text-on-surface">qr_code_2</span>
-</div>
-<p class="text-body-md font-bold text-primary tracking-widest uppercase" id="qrLabel">A001-FLOW-77</p>
-<div class="mt-lg flex flex-col w-full gap-sm">
-<button class="w-full bg-primary text-on-primary py-sm rounded-lg font-title-md flex justify-center items-center gap-sm shadow-sm hover:brightness-110 active:scale-[0.98] transition-all">
-<span class="material-symbols-outlined">print</span> พิมพ์สติกเกอร์
-                            </button>
-<button class="w-full border border-primary text-primary py-sm rounded-lg font-title-md flex justify-center items-center gap-sm hover:bg-primary/5 active:scale-[0.98] transition-all">
-<span class="material-symbols-outlined">edit</span> แก้ไขข้อมูล
-                            </button>
-</div>
-</div>
-</div>
-</div>
-</section>
-</main>
-<!-- BottomNavBar (Mobile only) -->
-<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-md pb-safe py-sm bg-surface shadow-lg border-t border-outline-variant">
-<button class="flex flex-col items-center justify-center text-primary rounded-full px-md py-xs nav-item active" onclick="switchView('view-home')">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shelves</span>
-<span class="font-label-sm text-label-sm">Dashboard</span>
-</button>
-<button class="flex flex-col items-center justify-center text-on-secondary-fixed-variant nav-item" onclick="switchView('view-list')">
-<span class="material-symbols-outlined">warehouse</span>
-<span class="font-label-sm text-label-sm">Inventory</span>
-</button>
-<button class="flex flex-col items-center justify-center text-on-secondary-fixed-variant nav-item">
-<span class="material-symbols-outlined">local_shipping</span>
-<span class="font-label-sm text-label-sm">Shipments</span>
-</button>
-<button class="flex flex-col items-center justify-center text-on-secondary-fixed-variant nav-item">
-<span class="material-symbols-outlined">settings</span>
-<span class="font-label-sm text-label-sm">Settings</span>
-</button>
-</nav>
-<script>
-        const statusOptions = ["รอรับเข้า", "จัดเก็บแล้ว", "พร้อมจัดส่ง", "ต้องตรวจสอบ"];
-        
-        function getRandomStatus() {
-            return statusOptions[Math.floor(Math.random() * statusOptions.length)];
+        };
+
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyAjeBWKnA3hBO4GXb_Kt4erdVoQwkW5EneeBWkdzFZSibhLLF806qIlDotYaTLWuh9/exec';
+        let cachedDB = null;
+        let jsonpCounter = 0;
+
+        function callSheetAPI(params, timeoutMs = 15000) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'sheetCb_' + (jsonpCounter++) + '_' + Date.now();
+                const script = document.createElement('script');
+                let done = false;
+
+                const cleanup = () => {
+                    done = true;
+                    delete window[callbackName];
+                    script.remove();
+                    clearTimeout(timer);
+                };
+
+                window[callbackName] = (data) => {
+                    if (done) return;
+                    cleanup();
+                    resolve(data);
+                };
+
+                script.onerror = () => {
+                    if (done) return;
+                    cleanup();
+                    reject(new Error('เชื่อมต่อ Google Sheets ไม่สำเร็จ (โหลดสคริปต์ล้มเหลว)'));
+                };
+
+                const timer = setTimeout(() => {
+                    if (done) return;
+                    cleanup();
+                    reject(new Error('เชื่อมต่อ Google Sheets หมดเวลา (timeout)'));
+                }, timeoutMs);
+
+                const query = new URLSearchParams({ ...params, callback: callbackName }).toString();
+                script.src = API_URL + '?' + query;
+                document.body.appendChild(script);
+            });
         }
 
-        const products = [
-            { id: "A001", name: "ดินสอไม้", qty: 15, unit: "ชิ้น", category: "เครื่องเขียน", location: "A01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L001" },
-            { id: "A002", name: "ยางลบ", qty: 8, unit: "ชิ้น", category: "เครื่องเขียน", location: "A02", status: getRandomStatus(), mfg: "01/05/2024", lot: "L002" },
-            { id: "A003", name: "ปากกาลูกลื่น", qty: 12, unit: "ชิ้น", category: "เครื่องเขียน", location: "A03", status: getRandomStatus(), mfg: "01/05/2024", lot: "L003" },
-            { id: "A004", name: "ไม้บรรทัด", qty: 13, unit: "ชิ้น", category: "เครื่องเขียน", location: "B01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L004" },
-            { id: "A005", name: "กบเหลาดินสอ", qty: 20, unit: "ชิ้น", category: "เครื่องเขียน", location: "B02", status: getRandomStatus(), mfg: "01/05/2024", lot: "L005" },
-            { id: "A006", name: "สมุดโน้ตเล่มเล็ก", qty: 9, unit: "ชิ้น", category: "เครื่องเขียน", location: "C01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L006" },
-            { id: "A007", name: "สบู่ก้อน", qty: 14, unit: "ชิ้น", category: "ของใช้ส่วนตัว", location: "C02", status: getRandomStatus(), mfg: "01/05/2024", lot: "L007" },
-            { id: "A008", name: "ยาสีฟันขนาดเล็ก", qty: 9, unit: "ชิ้น", category: "ของใช้ส่วนตัว", location: "A01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L008" },
-            { id: "A009", name: "แปรงสีฟัน", qty: 13, unit: "ชิ้น", category: "ของใช้ส่วนตัว", location: "A02", status: getRandomStatus(), mfg: "01/05/2024", lot: "L009" },
-            { id: "A010", name: "ทิชชู่พกพา", qty: 18, unit: "ชิ้น", category: "ของใช้ส่วนตัว", location: "A03", status: getRandomStatus(), mfg: "01/05/2024", lot: "L010" },
-            { id: "A011", name: "ทิชชู่เปียก", qty: 11, unit: "ชิ้น", category: "ของใช้ส่วนตัว", location: "B01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L011" },
-            { id: "A012", name: "หน้ากากอนามัย", qty: 19, unit: "ชิ้น", category: "ของใช้ส่วนตัว", location: "B02", status: getRandomStatus(), mfg: "01/05/2024", lot: "L012" },
-            { id: "A013", name: "น้ำยาล้างจานแบบซอง", qty: 16, unit: "ชิ้น", category: "ของใช้ในบ้าน", location: "C01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L013" },
-            { id: "A014", name: "ถุงขยะขนาดเล็ก", qty: 20, unit: "ชิ้น", category: "ของใช้ในบ้าน", location: "C02", status: getRandomStatus(), mfg: "01/05/2024", lot: "L014" },
-            { id: "A015", name: "บะหมี่กึ่งสำเร็จรูป", qty: 17, unit: "ชิ้น", category: "อาหารแห้ง", location: "A01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L015" },
-            { id: "A016", name: "ปลากระป๋อง", qty: 9, unit: "ชิ้น", category: "อาหารแห้ง", location: "A02", status: getRandomStatus(), mfg: "01/05/2024", lot: "L016" },
-            { id: "A017", name: "น้ำดื่ม 800 มล.", qty: 19, unit: "ชิ้น", category: "เครื่องดื่ม", location: "A03", status: getRandomStatus(), mfg: "01/05/2024", lot: "L017" },
-            { id: "A018", name: "สำลีก้าน", qty: 8, unit: "ชิ้น", category: "ของใช้ส่วนตัว", location: "B01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L018" },
-            { id: "A019", name: "ลูกอม", qty: 20, unit: "ชิ้น", category: "ขนม", location: "B02", status: getRandomStatus(), mfg: "01/05/2024", lot: "L019" },
-            { id: "A020", name: "ขนมปังกรอบ", qty: 12, unit: "ชิ้น", category: "ขนม", location: "C01", status: getRandomStatus(), mfg: "01/05/2024", lot: "L020" }
-        ];
+        async function initFromSheet() {
+            try {
+                const result = await callSheetAPI({ action: 'load' });
+                if (result.success) {
+                    cachedDB = result.data || {};
+                    localStorage.setItem('logistics_db', JSON.stringify(cachedDB));
 
-        let currentFilter = 'all';
+                    if (!document.getElementById('tabAdmin').classList.contains('hidden')) {
+                        loadAdminData();
+                    }
+                    
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('track')) {
+                        document.getElementById('trackingInput').value = urlParams.get('track');
+                        searchTracking();
+                    }
+                } else {
+                    console.warn('โหลดจาก Google Sheets ไม่สำเร็จ:', result.error);
+                }
+            } catch (err) {
+                console.error('เชื่อมต่อ Google Sheets ไม่สำเร็จ ใช้ข้อมูลในเครื่อง/ตัวอย่างแทนชั่วคราว:', err);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', initFromSheet);
 
-        function switchView(viewId) {
-            document.querySelectorAll('.view-transition').forEach(view => {
-                view.classList.add('hidden-view');
-                view.classList.remove('active-view');
+        function getDatabase() {
+            if (cachedDB) return cachedDB;
+            const data = localStorage.getItem('logistics_db');
+            return data ? JSON.parse(data) : defaultDatabase;
+        }
+
+        function saveDatabase(db) {
+            cachedDB = db;
+            localStorage.setItem('logistics_db', JSON.stringify(db));
+
+            callSheetAPI({ action: 'save', db: JSON.stringify(db) }).catch(err => {
+                console.error('บันทึกไป Google Sheets ไม่สำเร็จ:', err);
+                alert('บันทึกไป Google Sheets ไม่สำเร็จ: ' + err.message + '\n\n(ข้อมูลยังถูกบันทึกในเครื่องนี้ไว้ก่อน)');
             });
-            const active = document.getElementById(viewId);
-            active.classList.remove('hidden-view');
-            active.classList.add('active-view');
-            
-            // Sync bottom nav state
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('text-primary');
-                item.classList.add('text-on-secondary-fixed-variant');
-                item.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 0";
-            });
+        }
 
-            if (viewId === 'view-home') {
-                 const item = document.querySelectorAll('.nav-item')[0];
-                 item.classList.add('text-primary');
-                 item.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 1";
-            } else if (viewId === 'view-list' || viewId === 'view-detail') {
-                 const item = document.querySelectorAll('.nav-item')[1];
-                 item.classList.add('text-primary');
-                 item.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 1";
+        function getCurrentDateTime() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tabClient').classList.add('hidden');
+            document.getElementById('tabAdmin').classList.add('hidden');
+            document.getElementById('btnTabClient').className = "text-sm px-3 py-1.5 rounded-lg hover:bg-indigo-700 font-medium transition";
+            document.getElementById('btnTabAdmin').className = "text-sm px-3 py-1.5 rounded-lg hover:bg-indigo-700 font-medium transition";
+
+            if (tab === 'client') {
+                document.getElementById('tabClient').classList.remove('hidden');
+                document.getElementById('btnTabClient').className = "text-sm px-3 py-1.5 rounded-lg bg-indigo-700 font-medium transition";
+            } else if (tab === 'admin') {
+                document.getElementById('tabAdmin').classList.remove('hidden');
+                document.getElementById('btnTabAdmin').className = "text-sm px-3 py-1.5 rounded-lg bg-indigo-700 font-medium transition";
+                loadAdminData();
             }
         }
 
-        function getStatusColor(status) {
-            switch(status) {
-                case 'พร้อมจัดส่ง': return 'bg-green-100 text-green-800 border-green-200';
-                case 'รอรับเข้า': return 'bg-blue-100 text-blue-800 border-blue-200';
-                case 'จัดเก็บแล้ว': return 'bg-purple-100 text-purple-800 border-purple-200';
-                case 'ต้องตรวจสอบ': return 'bg-amber-100 text-amber-800 border-amber-200';
-                default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        function searchTracking() {
+            const trackingNo = document.getElementById('trackingInput').value.trim().toUpperCase();
+            const db = getDatabase();
+            const resultSection = document.getElementById('resultSection');
+            const errorSection = document.getElementById('errorSection');
+
+            if (!trackingNo || !db[trackingNo]) {
+                resultSection.classList.add('hidden');
+                errorSection.classList.remove('hidden');
+                return;
             }
-        }
 
-        function renderProducts(data) {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '';
-            data.forEach((p, index) => {
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-xl border border-outline-variant p-sm flex flex-col items-center text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 opacity-0 cursor-pointer';
-                card.style.animation = `fadeIn 0.3s forwards ${index * 0.05}s`;
-                card.onclick = () => showDetail(p.id);
-                
-                card.innerHTML = `
-                    <div class="w-full h-32 bg-surface-container-low rounded-lg mb-sm flex items-center justify-center relative overflow-hidden group">
-                         <span class="material-symbols-outlined text-primary/30 text-[64px] group-hover:scale-110 transition-transform">inventory_2</span>
-                         <div class="absolute top-xs right-xs px-xs py-1 rounded bg-white/80 backdrop-blur-sm text-[10px] font-bold text-outline border border-outline-variant">${p.id}</div>
-                    </div>
-                    <h4 class="font-title-md text-title-md text-on-surface truncate w-full mb-xs px-xs">${p.name}</h4>
-                    <span class="px-md py-1 rounded-full text-[10px] font-bold uppercase mb-md border ${getStatusColor(p.status)}">${p.status}</span>
-                    <button class="mt-auto w-full py-xs bg-surface-container-high text-primary rounded-lg text-label-sm font-label-sm hover:bg-primary hover:text-on-primary transition-colors">Detail</button>
-                `;
-                grid.appendChild(card);
-            });
-        }
+            errorSection.classList.add('hidden');
+            resultSection.classList.remove('hidden');
 
-        function filterProducts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = products.filter(p => 
-                (currentFilter === 'all' || p.status === currentFilter) &&
-                (p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query))
-            );
-            renderProducts(filtered);
-        }
+            const item = db[trackingNo];
+            document.getElementById('resTrackingNo').innerText = trackingNo;
+            document.getElementById('resProductName').innerText = item.name || 'ไม่ระบุชื่อสินค้า';
+            document.getElementById('resProductCode').innerText = item.code ? `SKU: ${item.code}` : 'SKU: -';
+            document.getElementById('resProductCategory').innerText = item.category || '-';
+            document.getElementById('resProductLocation').innerText = item.location || '-';
+            document.getElementById('resProductQty').innerText = item.qty || '-';
+            document.getElementById('resProductUnit').innerText = item.unit || '-';
+            document.getElementById('resProductCreated').innerText = item.created || '-';
+            document.getElementById('resProductUpdated').innerText = item.updated || '-';
 
-        function filterByStatus(status) {
-            currentFilter = status;
-            document.querySelectorAll('.status-tab').forEach(tab => {
-                tab.classList.remove('bg-primary', 'text-on-primary');
-                tab.classList.add('bg-surface-container-high', 'text-on-surface-variant');
-            });
-            event.currentTarget.classList.add('bg-primary', 'text-on-primary');
-            event.currentTarget.classList.remove('bg-surface-container-high', 'text-on-surface-variant');
-            filterProducts();
-        }
+            // Reset Timeline
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                const circle = step.querySelector('div');
+                circle.className = "w-6 h-6 rounded-full bg-slate-200 text-white flex items-center justify-center z-10 text-xs font-bold ring-4 ring-white";
+            }
 
-        function showDetail(id) {
-            const p = products.find(prod => prod.id.toUpperCase() === id.toUpperCase());
-            if (!p) return;
-
-            document.getElementById('detailName').innerText = p.name;
-            document.getElementById('detailId').innerText = p.id;
-            document.getElementById('detailCategory').innerText = p.category;
-            document.getElementById('detailLocation').innerText = p.location;
-            document.getElementById('detailQty').innerText = p.qty;
-            document.getElementById('detailUnit').innerText = p.unit;
-            document.getElementById('detailMfg').innerText = p.mfg;
-            document.getElementById('qrLabel').innerText = `${p.id}-FLOW-${p.lot}`;
-            
-            const badge = document.getElementById('detailStatusBadge');
-            badge.innerText = p.status;
-            badge.className = `px-md py-xs rounded-full text-label-sm font-label-sm border ${getStatusColor(p.status)}`;
-
-            switchView('view-detail');
-        }
-
-        function updateStats() {
-            const readyCount = products.filter(p => p.status === 'พร้อมจัดส่ง').length;
-            document.getElementById('readyCount').innerText = readyCount;
-        }
-
-        function checkUrlParameters() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
-            
-            if (productId) {
-                const product = products.find(p => p.id.toUpperCase() === productId.toUpperCase());
-                if (product) {
-                    showDetail(product.id);
+            // Highlight Active Step
+            const currentStep = document.getElementById(`step${item.status}`);
+            if (currentStep) {
+                const circle = currentStep.querySelector('div');
+                if (item.status === 4) {
+                    circle.className = "w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center z-10 text-xs font-bold ring-4 ring-purple-100";
+                } else {
+                    circle.className = "w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center z-10 text-xs font-bold ring-4 ring-indigo-100";
                 }
             }
         }
 
-        // Initial Load
-        window.onload = () => {
-            renderProducts(products);
-            updateStats();
-            checkUrlParameters();
-        };
-
-        // Custom animations for card loading
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
+        function toggleDetailForm() {
+            const checkbox = document.getElementById('toggleDetailCheckbox');
+            const section = document.getElementById('productDetailSection');
+            if (checkbox.checked) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
             }
-            .no-scrollbar::-webkit-scrollbar { display: none; }
-            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            .nav-item.active { color: var(--primary) !important; }
-        `;
-        document.head.append(style);
+        }
+
+        function addNewRandomParcel() {
+            const db = getDatabase();
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            const newTracking = "LF" + randomNum;
+            const nowStr = getCurrentDateTime();
+
+            const isDetailed = document.getElementById('toggleDetailCheckbox').checked;
+
+            if (isDetailed) {
+                db[newTracking] = {
+                    status: 1,
+                    name: document.getElementById('inputProductName').value || "สินค้าไม่มีชื่อ",
+                    code: document.getElementById('inputProductCode').value || "-",
+                    category: document.getElementById('inputProductCategory').value || "-",
+                    location: document.getElementById('inputProductLocation').value || "-",
+                    qty: document.getElementById('inputProductQty').value || "1",
+                    unit: document.getElementById('inputProductUnit').value || "ชิ้น",
+                    timestamp: Date.now(),
+                    created: document.getElementById('inputProductCreated').value || nowStr,
+                    updated: nowStr
+                };
+            } else {
+                db[newTracking] = {
+                    status: 1,
+                    name: "พัสดุลงทะเบียนใหม่",
+                    code: "-",
+                    category: "-",
+                    location: "-",
+                    qty: "1",
+                    unit: "ชิ้น",
+                    timestamp: Date.now(),
+                    created: nowStr,
+                    updated: nowStr
+                };
+            }
+
+            saveDatabase(db);
+            loadAdminData();
+            alert(`สร้างหมายเลขพัสดุสำเร็จ: ${newTracking}`);
+
+            // Reset inputs
+            document.getElementById('inputProductName').value = '';
+            document.getElementById('inputProductCode').value = '';
+            document.getElementById('inputProductCategory').value = '';
+            document.getElementById('inputProductLocation').value = '';
+            document.getElementById('inputProductQty').value = '';
+            document.getElementById('inputProductUnit').value = '';
+            document.getElementById('inputProductCreated').value = '';
+        }
+
+        function loadAdminData() {
+            const db = getDatabase();
+            const tableBody = document.getElementById('adminParcelTable');
+            const searchKeyword = document.getElementById('adminSearchBox').value.toLowerCase().trim();
+            const filterStatus = document.getElementById('adminFilterStatus').value;
+
+            tableBody.innerHTML = '';
+
+            let total = 0, waiting = 0, stored = 0, shipping = 0, check = 0;
+
+            Object.keys(db).reverse().forEach(tracking => {
+                const item = db[tracking];
+                
+                // สถิติ
+                total++;
+                if (item.status === 1) waiting++;
+                else if (item.status === 2) stored++;
+                else if (item.status === 3) shipping++;
+                else if (item.status === 4) check++;
+
+                // การกรองข้อมูล
+                const matchSearch = tracking.toLowerCase().includes(searchKeyword) || 
+                                    (item.name && item.name.toLowerCase().includes(searchKeyword)) || 
+                                    (item.code && item.code.toLowerCase().includes(searchKeyword));
+                const matchStatus = filterStatus === '' || item.status.toString() === filterStatus;
+
+                if (matchSearch && matchStatus) {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-slate-100 hover:bg-slate-50/50 transition";
+
+                    let statusBadge = "";
+                    if (item.status === 1) statusBadge = `<span class="bg-amber-100 text-amber-700 text-xs px-2.5 py-1 rounded-full font-medium">รอรับเข้า</span>`;
+                    else if (item.status === 2) statusBadge = `<span class="bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded-full font-medium">จัดเก็บแล้ว</span>`;
+                    else if (item.status === 3) statusBadge = `<span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-medium">พร้อมจัดส่ง</span>`;
+                    else if (item.status === 4) statusBadge = `<span class="bg-purple-100 text-purple-700 text-xs px-2.5 py-1 rounded-full font-medium">ต้องตรวจสอบ</span>`;
+
+                    tr.innerHTML = `
+                        <td class="py-3 text-center"><input type="checkbox" value="${tracking}" onchange="updateBulkActionButtons()" class="parcel-checkbox rounded border-slate-300"></td>
+                        <td class="py-3">
+                            <div class="font-bold text-indigo-600">${tracking}</div>
+                            <div class="text-xs text-slate-500 font-medium">${item.name || '-'} ${item.code ? `(${item.code})` : ''}</div>
+                        </td>
+                        <td class="py-3">${statusBadge}</td>
+                        <td class="py-3 text-center">
+                            <div class="flex justify-center gap-1.5">
+                                <button onclick="viewTrackingDetail('${tracking}')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-1.5 rounded-lg text-xs" title="ดูข้อมูล">👁️</button>
+                                <button onclick="openEditParcelModal('${tracking}')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-1.5 rounded-lg text-xs" title="แก้ไข">✏️</button>
+                                <button onclick="openStickerModal('${tracking}')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-1.5 rounded-lg text-xs" title="พิมพ์ QR Code">🖨️</button>
+                                <button onclick="deleteSingleParcel('${tracking}')" class="bg-red-50 hover:bg-red-100 text-red-600 p-1.5 rounded-lg text-xs" title="ลบ">🗑️</button>
+                            </div>
+                        </td>
+                        <td class="py-3 text-right">
+                            <select onchange="updateParcelStatus('${tracking}', this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="1" ${item.status === 1 ? 'selected' : ''}>รอรับเข้า</option>
+                                <option value="2" ${item.status === 2 ? 'selected' : ''}>จัดเก็บแล้ว</option>
+                                <option value="3" ${item.status === 3 ? 'selected' : ''}>พร้อมจัดส่ง</option>
+                                <option value="4" ${item.status === 4 ? 'selected' : ''}>ต้องตรวจสอบ</option>
+                            </select>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                }
+            });
+
+            // อัปเดตการ์ดสถิติ
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statWaiting').innerText = waiting;
+            document.getElementById('statStored').innerText = stored;
+            document.getElementById('statShipping').innerText = shipping;
+            document.getElementById('statCheck').innerText = check;
+
+            updateBulkActionButtons();
+        }
+
+        function updateParcelStatus(tracking, newStatus) {
+            const db = getDatabase();
+            if (db[tracking]) {
+                db[tracking].status = parseInt(newStatus);
+                db[tracking].updated = getCurrentDateTime();
+                saveDatabase(db);
+                loadAdminData();
+            }
+        }
+
+        function viewTrackingDetail(tracking) {
+            switchTab('client');
+            document.getElementById('trackingInput').value = tracking;
+            document.getElementById('backToAdminContainer').classList.remove('hidden');
+            searchTracking();
+        }
+
+        function goBackToAdmin() {
+            document.getElementById('backToAdminContainer').classList.add('hidden');
+            switchTab('admin');
+        }
+
+        function deleteSingleParcel(tracking) {
+            if (confirm(`คุณต้องการลบรายการพัสดุ ${tracking} ใช่หรือไม่?`)) {
+                const db = getDatabase();
+                delete db[tracking];
+                saveDatabase(db);
+                loadAdminData();
+            }
+        }
+
+        function toggleSelectAll(master) {
+            const checkboxes = document.querySelectorAll('.parcel-checkbox');
+            checkboxes.forEach(cb => cb.checked = master.checked);
+            updateBulkActionButtons();
+        }
+
+        function updateBulkActionButtons() {
+            const selected = document.querySelectorAll('.parcel-checkbox:checked');
+            const btnDelete = document.getElementById('btnBulkDelete');
+            const btnPrint = document.getElementById('btnBulkPrint');
+
+            if (selected.length > 0) {
+                btnDelete.classList.remove('hidden');
+                btnPrint.classList.remove('hidden');
+            } else {
+                btnDelete.classList.add('hidden');
+                btnPrint.classList.add('hidden');
+            }
+        }
+
+        function deleteSelectedParcels() {
+            const selected = document.querySelectorAll('.parcel-checkbox:checked');
+            if (selected.length === 0) return;
+
+            if (confirm(`คุณต้องการลบพัสดุจำนวน ${selected.length} รายการที่เลือกใช่หรือไม่?`)) {
+                const db = getDatabase();
+                selected.forEach(cb => {
+                    delete db[cb.value];
+                });
+                saveDatabase(db);
+                document.getElementById('selectAll').checked = false;
+                loadAdminData();
+            }
+        }
+
+        // ================= QR Code & Modal =================
+        function openStickerModal(tracking) {
+            const db = getDatabase();
+            const item = db[tracking];
+            if (!item) return;
+
+            document.getElementById('stickerTrackingNo').innerText = tracking;
+            document.getElementById('stkProductName').innerText = item.name || '-';
+            document.getElementById('stkProductCode').innerText = `รหัส: ${item.code || '-'}`;
+            document.getElementById('stkProductLoc').innerText = `ตำแหน่ง: ${item.location || '-'}`;
+            document.getElementById('stickerProductDetails').classList.remove('hidden');
+
+            const qrContainer = document.getElementById('stickerQrcode');
+            qrContainer.innerHTML = '';
+
+            const trackingUrl = window.location.origin + window.location.pathname + '?track=' + tracking;
+            new QRCode(qrContainer, {
+                text: trackingUrl,
+                width: 128,
+                height: 128
+            });
+
+            document.getElementById('printStickerModal').classList.remove('hidden');
+            document.getElementById('printStickerModal').classList.add('flex');
+        }
+
+        function closeStickerModal() {
+            document.getElementById('printStickerModal').classList.add('hidden');
+            document.getElementById('printStickerModal').classList.remove('flex');
+        }
+
+        function openBulkPrintModal() {
+            const selected = document.querySelectorAll('.parcel-checkbox:checked');
+            if (selected.length === 0) return;
+
+            const db = getDatabase();
+            const container = document.getElementById('multiPrintContainer');
+            container.innerHTML = '';
+
+            selected.forEach(cb => {
+                const tracking = cb.value;
+                const item = db[tracking];
+                if (!item) return;
+
+                const sticker = document.createElement('div');
+                sticker.className = 'sticker-item';
+
+                const trackingUrl = window.location.origin + window.location.pathname + '?track=' + tracking;
+                const qrId = 'qr_' + tracking;
+
+                sticker.innerHTML = `
+                    <div style="font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase;">LogisticsFlow Express</div>
+                    <div style="font-size: 20px; font-weight: 900; margin-bottom: 5px;">${tracking}</div>
+                    <div style="font-size: 12px; font-weight: bold; text-align: left; background: #f8fafc; padding: 5px; border-radius: 5px; margin-bottom: 5px;">
+                        <div>${item.name || '-'}</div>
+                        <div style="font-size: 10px; color: #666; font-weight: normal;">รหัส: ${item.code || '-'} | ตำแหน่ง: ${item.location || '-'}</div>
+                    </div>
+                    <div id="${qrId}" style="display: flex; justify-content: center; margin: 8px 0;"></div>
+                    <div style="font-size: 9px; color: #888;">สแกนเพื่อตรวจสอบสถานะพัสดุ</div>
+                `;
+                container.appendChild(sticker);
+
+                setTimeout(() => {
+                    new QRCode(document.getElementById(qrId), {
+                        text: trackingUrl,
+                        width: 100,
+                        height: 100
+                    });
+                }, 50);
+            });
+
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+
+        // ================= Modal Edit =================
+        let currentEditingTracking = null;
+
+        function openEditParcelModal(tracking) {
+            const db = getDatabase();
+            const item = db[tracking];
+            if (!item) return;
+
+            currentEditingTracking = tracking;
+            document.getElementById('editParcelTrackingNo').innerText = tracking;
+            document.getElementById('editInputName').value = item.name || '';
+            document.getElementById('editInputCode').value = item.code || '';
+            document.getElementById('editInputCategory').value = item.category || '';
+            document.getElementById('editInputLocation').value = item.location || '';
+            document.getElementById('editInputQty').value = item.qty || '';
+            document.getElementById('editInputUnit').value = item.unit || '';
+
+            document.getElementById('editParcelModal').classList.remove('hidden');
+            document.getElementById('editParcelModal').classList.add('flex');
+        }
+
+        function closeEditParcelModal() {
+            currentEditingTracking = null;
+            document.getElementById('editParcelModal').classList.add('hidden');
+            document.getElementById('editParcelModal').classList.remove('flex');
+        }
+
+        function saveEditedParcel(e) {
+            e.preventDefault();
+            if (!currentEditingTracking) return;
+
+            const db = getDatabase();
+            if (db[currentEditingTracking]) {
+                db[currentEditingTracking].name = document.getElementById('editInputName').value;
+                db[currentEditingTracking].code = document.getElementById('editInputCode').value;
+                db[currentEditingTracking].category = document.getElementById('editInputCategory').value;
+                db[currentEditingTracking].location = document.getElementById('editInputLocation').value;
+                db[currentEditingTracking].qty = document.getElementById('editInputQty').value;
+                db[currentEditingTracking].unit = document.getElementById('editInputUnit').value;
+                db[currentEditingTracking].updated = getCurrentDateTime();
+
+                saveDatabase(db);
+                loadAdminData();
+                closeEditParcelModal();
+            }
+        }
     </script>
-</body></html>
+</body>
+</html>
